@@ -1,18 +1,22 @@
 package com.sanusi.reginstallmentservice.exception;
 
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.validation.ConstraintViolation;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @ControllerAdvice
-public class ApiExceptionHandler {
+public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({ApiRequestException.class})
     public ResponseEntity<Object> handlerApiRequestException(ApiRequestException e) {
@@ -26,16 +30,23 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(apiException, HttpStatus.NOT_FOUND);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
+    @ExceptionHandler({SavingAccountEmptyException.class})
+    public ResponseEntity<Object> handlerSavingAccountEmptyException(SavingAccountEmptyException e) {
+        ApiException apiException =new ApiException(HttpStatus.NO_CONTENT, e.getMessage());
+        return new ResponseEntity<>(apiException, HttpStatus.NO_CONTENT);
+    }
+
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<?> handleConstraintViolationException(
+            Exception ex,
+            WebRequest request) {
+
+        List<String> details = new ArrayList<String>();
+        details.add(ex.getMessage());
+
+        ApiException apiException =new ApiException(HttpStatus.BAD_REQUEST, details.toString());
+
+        return new ResponseEntity<>(apiException, HttpStatus.BAD_REQUEST);
     }
 }

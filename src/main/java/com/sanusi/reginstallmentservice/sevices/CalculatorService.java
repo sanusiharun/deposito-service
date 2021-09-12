@@ -1,5 +1,6 @@
 package com.sanusi.reginstallmentservice.sevices;
 
+import com.sanusi.reginstallmentservice.exception.ApiRequestException;
 import com.sanusi.reginstallmentservice.model.requests.CalculatorRequest;
 import com.sanusi.reginstallmentservice.model.responses.CalculatorResponse;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,19 @@ public class CalculatorService {
     }
 
     public BigDecimal calculate(CalculatorRequest request){
+
+        if(request.getTenor() < 1) {
+            throw new ApiRequestException("Invalid request");
+        }
+
+        if(request.getFirstAmount() < 1) {
+            throw new ApiRequestException("Invalid request");
+        }
+
+        if(request.getMonthlyAmount() < 1) {
+            throw new ApiRequestException("Invalid request");
+        }
+
         BigDecimal grantTotalDepositAmount =null;
         BigDecimal amount = null;
         double tenor = tenor(request.getTenor());

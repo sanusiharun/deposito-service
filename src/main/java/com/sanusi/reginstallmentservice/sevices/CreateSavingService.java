@@ -1,6 +1,7 @@
 package com.sanusi.reginstallmentservice.sevices;
 
 import com.sanusi.reginstallmentservice.exception.AccountNotFoundException;
+import com.sanusi.reginstallmentservice.exception.ApiRequestException;
 import com.sanusi.reginstallmentservice.model.entities.Account;
 import com.sanusi.reginstallmentservice.model.entities.Deposit;
 import com.sanusi.reginstallmentservice.model.requests.CalculatorRequest;
@@ -31,6 +32,11 @@ public class CreateSavingService {
 
         Account account = accountRepository.findByAccountNumber(request.getAccountNumber()).orElseThrow(
                 ()->  new AccountNotFoundException("Account ID not found"));
+
+        if(request.getTenor() < 1) {
+            throw new ApiRequestException("Invalid request");
+        }
+
 
         CalculatorRequest req = CalculatorRequest.builder()
                 .firstAmount(request.getFirstAmount())

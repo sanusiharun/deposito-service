@@ -1,5 +1,6 @@
 package com.sanusi.reginstallmentservice.sevices;
 
+import com.sanusi.reginstallmentservice.exception.SavingAccountEmptyException;
 import com.sanusi.reginstallmentservice.model.projections.DepositInfo;
 import com.sanusi.reginstallmentservice.model.responses.GetAllSavingResponse;
 import com.sanusi.reginstallmentservice.repositories.DepositRepository;
@@ -17,8 +18,8 @@ public class GetAllSavingService {
 
     public GetAllSavingResponse execute() {
         List<DepositInfo> depositInfoList = depositRepository.getAllDeposito();
-        if(depositInfoList.size() < 0) {
-            return null;
+        if(depositInfoList.size() == 0) {
+            throw new SavingAccountEmptyException("Empty Saving account");
         }
 
         GetAllSavingResponse result = GetAllSavingResponse.builder()
